@@ -18,6 +18,7 @@ const run = async (cmd, options = {}) => {
     return new Promise((res, rej) => {
         exec(cmd, options, (err, stdout, stderr) => {
             if (err) rej(err);
+            logger.debug("Last command output", stdout);
             res({stdout, stderr});
         });
     });
