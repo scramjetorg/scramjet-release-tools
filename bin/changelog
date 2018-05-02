@@ -2,7 +2,7 @@
 
 const semver = require('semver');
 const {StringStream} = require('scramjet');
-const {logger, run, failIf, streamFile, packageFile, runStream} = require('../lib');
+const {logger, streamFile, packageFile, runStream} = require('../lib');
 
 (async () => {
     logger.info("Reading package and current changelog");
