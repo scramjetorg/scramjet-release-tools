@@ -4,7 +4,11 @@
   "description": "Set of tools used to release scramjet and releated projects.",
   "main": "index.js",
   "bin": {
-    "scramjet-release-tool": "run.sh"
+    "scramjet-tool-release": "bin/release",
+    "scramjet-tool-changelog": "bin/changelog"
+  },
+  "engines": {
+    "node": ">=8"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\""

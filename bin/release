@@ -1,6 +1,5 @@
-#!/usr/bin/node
+#!/usr/bin/env node
 
-const {promisify} = require("util");
 const logger = require('loglevel');
 const {exec} = require('child_process');
 
@@ -29,66 +28,66 @@ const run = async (cmd, options = {}) => {
 const failIf = (test, message) => {
     if (!test)
         return;
-        
+
     logger.debug("Assumed that ", JSON.stringify(test), "should be falsy...");
     throw new Error(message);
 };
 
 (async () => {
     if (!version || !message) {
-        logger.error("Usage: scramjet-release-tool <version> -m '<message>'");
+        logger.error("Usage: scramjet-tool-release <version> -m '<message>'");
         process.exit(1);
     }
-    
+
     logger.info("Checking local git repo status.");
-    
+
     failIf(!version.match(/^(minor|major|patch|\d\.\d\.\d)$/), "Version must be minor|major|patch or semver.");
-    
-    const package = JSON.parse((await run('cat package.json')).stdout);
-    
+
+    // const package = JSON.parse((await run('cat package.json')).stdout);
+
     await run('git status');
     await run('npm version');
-    
+
     const {stdout: dirty} = await run('git status --porcelain');
     failIf(dirty.trim(), "Git repo dirty. Commit all changes before attempting release.");
-    
+
     logger.info(" ... Current working copy clean and correct.");
-    
+
     const {stdout: branchData} = await run('git branch -v');
     const currentBranch = branchData.split('\n').find(b => b.startsWith('*'));
-    
+
     failIf(currentBranch.substr(2,3) !== 'dev', "Release is done only from development branch.");
     failIf(branchData.match(/\[(ahead|behind) \d\]/), "There are branches not in sync with upstream.");
-        
+
     logger.info(" ... Branch correct.");
-    
+
     logger.info("Checks done, merging to master...");
-    
+
     await run('git checkout master');
-    
+
     try {
         await run('git merge --no-ff -');
-        
+
         logger.info("Merged to master... attempting to build version");
         await run('npm version ' + version + ' -m "'+message.replace('"', '"\'"\'"')+'"');
-        
+
         logger.info("Version released, merging back to dev");
-        
+
     } catch(e) {
         logger.error("Error occured, rolling back to origin/master");
         await run('git reset --hard origin/master');
         await run('git checkout -');
     }
-    
+
     await run('git checkout -');
     await run('git merge --no-ff master');
-    
+
     logger.info('Pushing to upstream...');
-    
+
     await run('git push --all --follow-tags');
-    
+
     logger.info("Done!");
-    
+
 })().catch(
     (err) => logger.error(err) && process.exit(100)
 );
