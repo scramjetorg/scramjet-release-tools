@@ -2,9 +2,13 @@
   "name": "scramjet-release-tools",
   "version": "1.1.1",
   "description": "Set of tools used to release scramjet and releated projects.",
-  "main": "index.js",
+  "main": "lib.js",
   "bin": {
-    "scramjet-release-tool": "run.sh"
+    "scramjet-tool-release": "bin/release",
+    "scramjet-tool-changelog": "bin/changelog"
+  },
+  "engines": {
+    "node": ">=8"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\""
@@ -25,8 +29,10 @@
     "eslint-plugin-node": "^6.0.1"
   },
   "dependencies": {
+    "execspawn": "^1.0.1",
     "loglevel": "^1.6.1",
     "minimist": "^1.2.0",
-    "scramjet": "^4.10.0"
+    "scramjet": "^4.10.0",
+    "semver": "^5.5.0"
   }
 }
