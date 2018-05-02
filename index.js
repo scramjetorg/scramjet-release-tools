@@ -35,7 +35,6 @@ const failIf = (test, message) => {
 };
 
 (async () => {
-    console.log(process.argv);
     if (!version || !message) {
         logger.error("Usage: scramjet-release-tool <version> -m '<message>'");
         process.exit(1);
@@ -66,12 +65,20 @@ const failIf = (test, message) => {
     logger.info("Checks done, merging to master...");
     
     await run('git checkout master');
-    await run('git merge --no-ff -');
     
-    logger.info("Merged to master... attempting to build version");
-    await run('npm version ' + version + ' -m "'+message.replace('"', '"\'"\'"')+'"');
-    
-    logger.info("Version released, merging back to dev");
+    try {
+        await run('git merge --no-ff -');
+        
+        logger.info("Merged to master... attempting to build version");
+        await run('npm version ' + version + ' -m "'+message.replace('"', '"\'"\'"')+'"');
+        
+        logger.info("Version released, merging back to dev");
+        
+    } catch(e) {
+        logger.error("Error occured, rolling back to origin/master");
+        await run('git reset --hard origin/master');
+        await run('git checkout -');
+    }
     
     await run('git checkout -');
     await run('git merge --no-ff master');
