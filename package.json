@@ -15,5 +15,15 @@
   "bugs": {
     "url": "https://github.com/signicode/scramjet-release-tools/issues"
   },
-  "homepage": "https://github.com/signicode/scramjet-release-tools#readme"
+  "homepage": "https://github.com/signicode/scramjet-release-tools#readme",
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-defaults": "^9.0.0",
+    "eslint-plugin-node": "^6.0.1"
+  },
+  "dependencies": {
+    "loglevel": "^1.6.1",
+    "minimist": "^1.2.0",
+    "scramjet": "^4.10.0"
+  }
 }
