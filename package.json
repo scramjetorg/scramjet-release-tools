@@ -4,7 +4,7 @@
   "description": "Set of tools used to release scramjet and releated projects.",
   "main": "index.js",
   "bin": {
-    "scramjet-release-tool": "index.js"
+    "scramjet-release-tool": "run.sh"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\""

@@ -1,3 +1,5 @@
+#!/usr/bin/node
+
 const {promisify} = require("util");
 const logger = require('loglevel');
 const {exec} = require('child_process');
@@ -33,8 +35,13 @@ const failIf = (test, message) => {
 };
 
 (async () => {
-    logger.info("Checking local git repo status.");
+    console.log(process.argv);
+    if (!version || !message) {
+        logger.error("Usage: scramjet-release-tool <version> -m '<message>'");
+        process.exit(1);
+    }
     
+    logger.info("Checking local git repo status.");
     
     failIf(!version.match(/^(minor|major|patch|\d\.\d\.\d)$/), "Version must be minor|major|patch or semver.");
     
