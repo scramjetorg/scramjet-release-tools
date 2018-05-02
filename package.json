@@ -1,0 +1,19 @@
+{
+  "name": "scramjet-release-tools",
+  "version": "1.0.0",
+  "description": "Set of tools used to release scramjet and releated projects.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/signicode/scramjet-release-tools.git"
+  },
+  "author": "Signicode <open-source@signicode.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/signicode/scramjet-release-tools/issues"
+  },
+  "homepage": "https://github.com/signicode/scramjet-release-tools#readme"
+}
