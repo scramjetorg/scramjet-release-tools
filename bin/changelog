@@ -13,16 +13,16 @@ const {logger, streamFile, packageFile, runStream} = require('../lib');
     let i = 0;
     const changelogs = (await
         streamFile('CHANGELOG.md')
-            .lines(/\s+\r?\n/)
+            .lines(/\s*\r?\n/)
             .parse(x => ([
                 x,
                 i++
             ]))
             .filter(([x]) => x.match(/^#/))
             .map(([x, i]) => {
-                const z = x.match(/\d\.\d\.\d( - .*)?$/);
+                const z = x.match(/(\d+\.\d+(?:\.\d+)?)( - .*)?$/);
                 if (!z) return false;
-                return [z[0], x, i];
+                return [z[1], x, i];
             })
             .filter(x => x)
             .toArray()
@@ -48,7 +48,7 @@ const {logger, streamFile, packageFile, runStream} = require('../lib');
             if (version) {
                 return `+\n+## ${niceName} ${version}${message !== version ? ' - ' + message : ''}\n+\n`;
             } else {
-                return `+ * ${sha} - ${message}\n`;
+                return `+* ${sha} - ${message}\n`;
             }
         }, new StringStream)
         .toArray());
