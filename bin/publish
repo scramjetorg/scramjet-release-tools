@@ -1,17 +1,15 @@
 #!/usr/bin/env node
 
-const { logger, run, getJSON, getText, failIf, packageFile, defer } = require('../lib');
+const { logger, run, getJSON, getText, failIf, packageFile, defer, runRoot } = require('../lib');
 const semver = require('semver');
 
-const buildStatus = async (release) => {
-    const badgeSVG = await getText(`https://api.travis-ci.org/signicode/scramjet.svg?branch=${release.name}`);
+const buildStatus = async (release, org, repo) => {
+    const badgeSVG = await getText(`https://api.travis-ci.org/${org}/${repo}.svg?branch=${release.name}`);
     const [status] = badgeSVG.match(/passing|unknown|pending|failing/);
     return status;
 };
 
-
-
-(async () => {
+module.exports = (async () => {
 
     logger.info("Finding repo origin.");
 
@@ -40,7 +38,7 @@ const buildStatus = async (release) => {
         if (++i > 10) {
             throw new Error('Build not ready after 5 minutes');
         }
-        const status = await buildStatus(release);
+        const status = await buildStatus(release, org, repo);
         if (status === 'failing') {
             throw new Error('Build failed, cannot proceed...');
         }
@@ -56,8 +54,10 @@ const buildStatus = async (release) => {
         throw new Error(`Newest version of ${name} already released.`);
 
     logger.info(`Publishing package ${name}@${releaseVersion}`);
-    logger.log(`npm publish https://github.com/${org}/${repo}/archive/v${releaseVersion}.tar.gz`);
+    await run(`npm publish https://github.com/${org}/${repo}/archive/v${releaseVersion}.tar.gz`);
 
-})().catch(
-    (err) => logger.error(err) && process.exit(100)
-);
+    logger.info("Done.");
+
+});
+
+runRoot(module.exports);

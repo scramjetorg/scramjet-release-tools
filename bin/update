@@ -1,0 +1,71 @@
+#!/usr/bin/env node
+
+const { logger, run, scmClean, runRoot } = require('../lib');
+const semver = require('semver');
+const { DataStream } = require("scramjet");
+const save = {
+    devDependencies: 'D',
+    dependencies: 's'
+};
+
+module.exports = (async () => {
+
+    const wasClean = await scmClean();
+    if (!wasClean)
+        logger.warn("Working copy not clean, will not publish the package");
+
+    logger.info("Finding dependencies");
+
+    const packages = JSON.parse((await run('npm outdated --long --json', {allowError: 1})).stdout);
+
+    if (!Object.keys(packages).length)
+        throw new Error("Up to date");
+
+    const updated = await (
+        DataStream.fromArray(Object.entries(packages))
+            .setOptions({maxParallel: 1})
+            .filter(
+                ([, {type, current, wanted, latest}]) => !(type in save) || current !== wanted || semver.lt(current, latest)
+            )
+            .map(
+                async ([package, {type}]) => {
+                    logger.info(`Trying to update and test ${type.replace(/ies$/, 'y')}: ${package}`);
+                    try {
+                        await run(`npm install -${save[type]} ${package}`);
+                    } catch(e) {
+                        e.message = `Could not install '${package}': ${e.message}`;
+                        throw e;
+                    }
+                    try {
+                        await run('npm test');
+                    } catch (e) {
+                        e.message = `Test failed on updated '${package}': ${e.message}`;
+                        throw e;
+                    }
+
+                    return package;
+                }
+            )
+            .toArray()
+    );
+
+    if (updated.length)
+        logger.info("Packages updated: ", ...updated);
+    else
+        throw new Error("No packages to update.");
+
+    if (!wasClean)
+        throw new Error('Working copy wasn\'t clean, so not releasing version');
+
+    logger.warn("Committing changes and pushing...");
+
+    if (await scmClean()) {
+        throw new Error('Changes made but working copy not affected.');
+    }
+
+    await run('git commit -am "Dependencies update."');
+    await run('git push');
+
+});
+
+runRoot(module.exports);

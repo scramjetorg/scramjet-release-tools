@@ -1,13 +1,8 @@
 #!/usr/bin/env node
 
-const {
-    _: [version],
-    m: message
-} = require('minimist')(process.argv.slice(2));
+const {logger, run, failIf, runRoot} = require('../lib');
 
-const {logger, run, failIf} = require('../lib');
-
-(async () => {
+module.exports = (async ({ _: [version], m: message }) => {
     if (!version || !message) {
         logger.error("Usage: scramjet-tool-release <version> -m '<message>'");
         process.exit(1);
@@ -71,6 +66,6 @@ const {logger, run, failIf} = require('../lib');
 
     logger.info("Done!");
 
-})().catch(
-    (err) => logger.error(err) && process.exit(100)
-);
+});
+
+runRoot(module.exports, require('minimist')(process.argv.slice(2)));
