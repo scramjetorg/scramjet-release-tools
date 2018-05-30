@@ -5,7 +5,8 @@
   "main": "lib.js",
   "bin": {
     "scramjet-tool-release": "bin/release",
-    "scramjet-tool-changelog": "bin/changelog"
+    "scramjet-tool-changelog": "bin/changelog",
+    "scramjet-tool-publish": "bin/publish"
   },
   "engines": {
     "node": ">=8"
@@ -32,7 +33,8 @@
     "execspawn": "^1.0.1",
     "loglevel": "^1.6.1",
     "minimist": "^1.2.0",
-    "scramjet": "^4.10.0",
+    "node-fetch": "^2.1.2",
+    "scramjet": "^4.14.1",
     "semver": "^5.5.0"
   }
 }

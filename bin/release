@@ -50,9 +50,9 @@ const {logger, run, failIf} = require('../lib');
         await run('git merge --no-ff -');
 
         logger.info("Merged to master... attempting to build version");
-        await run('npm version ' + version + ' -m "'+message.replace('"', '"\'"\'"')+'"');
+        const version = await run('npm version ' + version + ' -m "'+message.replace('"', '"\'"\'"')+'"');
 
-        logger.info("Version released, merging back to dev");
+    logger.info(`Version ${version.match(/v.*?$/)} released, merging back to dev`);
 
     } catch(e) {
         logger.error("Error occurred, rolling back to origin/master");
