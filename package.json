@@ -5,6 +5,7 @@
   "main": "lib.js",
   "bin": {
     "scramjet-tool-release": "bin/release",
+    "scramjet-tool-update": "bin/update",
     "scramjet-tool-changelog": "bin/changelog",
     "scramjet-tool-publish": "bin/publish"
   },

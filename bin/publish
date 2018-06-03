@@ -9,8 +9,7 @@ const buildStatus = async (release, org, repo) => {
     return status;
 };
 
-module.exports = (async () => {
-
+module.exports = (async ({ i: ignoreCI }) => {
     logger.info("Finding repo origin.");
 
     const { name, repository } = await packageFile();
@@ -25,7 +24,7 @@ module.exports = (async () => {
 
     const [tags, {stdout: npmOut}] = await Promise.all([
         getJSON(`https://api.github.com/repos/${org}/${repo}/tags`),
-        run("npm show scramjet dist-tags.latest")
+        run(`npm show ${name} dist-tags.latest`)
     ]);
     const release = tags[0];
     const npmLatest = npmOut.trim();
@@ -34,7 +33,7 @@ module.exports = (async () => {
     logger.info(`Latest repo version is ${release.name}, latest published is ${npmLatest}, checking build status...`);
 
     let i = 0;
-    while(true) { // eslint-disable-line no-constant-condition
+    while(!ignoreCI) {
         if (++i > 10) {
             throw new Error('Build not ready after 5 minutes');
         }
@@ -60,4 +59,4 @@ module.exports = (async () => {
 
 });
 
-runRoot(module.exports);
+runRoot(module.exports, require('minimist')(process.argv.slice(2)));
