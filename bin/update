@@ -9,7 +9,9 @@ const save = {
 };
 
 module.exports = (async ({ n: noPush }) => {
+    logger.info("Pulling latest changes from repo");
 
+    await run('git pull --ff-only');
     const wasClean = await scmClean();
     if (!wasClean)
         logger.warn("Working copy not clean, will not publish the package");
