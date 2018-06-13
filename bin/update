@@ -8,7 +8,7 @@ const save = {
     dependencies: 's'
 };
 
-module.exports = (async () => {
+module.exports = (async ({ n: noPush }) => {
 
     const wasClean = await scmClean();
     if (!wasClean)
@@ -58,7 +58,7 @@ module.exports = (async () => {
     else
         throw new Error("No packages to update.");
 
-    if (!wasClean)
+    if (!wasClean || noPush)
         throw new Error('Working copy wasn\'t clean, so not releasing version');
 
     logger.warn("Committing changes and pushing...");
@@ -72,4 +72,5 @@ module.exports = (async () => {
 
 });
 
-runRoot(module.exports);
+runRoot(module.exports, require('minimist')(process.argv.slice(2)));
+
