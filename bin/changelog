@@ -2,35 +2,35 @@
 
 const semver = require('semver');
 const {StringStream} = require('scramjet');
-const {logger, streamFile, packageFile, runStream} = require('../lib');
+const {logger, streamFile, packageFile, runStream, runRoot} = require('../lib');
 
-(async () => {
+module.exports = (async () => {
     logger.info("Reading package and current changelog");
 
     const pkg = (await packageFile());
     const niceName = pkg.niceName || pkg.name.replace(/(^|-)(\w)/g, (d, s, x) => (s ? ' ' : '') + x.toUpperCase());
 
     let i = 0;
-    const changelogs = (await
+    const changeLogs = (await
         streamFile('CHANGELOG.md')
-            .lines(/\s+\r?\n/)
+            .lines(/\s*\r?\n/)
             .parse(x => ([
                 x,
                 i++
             ]))
             .filter(([x]) => x.match(/^#/))
             .map(([x, i]) => {
-                const z = x.match(/\d\.\d\.\d( - .*)?$/);
+                const z = x.match(/(\d+\.\d+(?:\.\d+)?)( - .*)?$/);
                 if (!z) return false;
-                return [z[0], x, i];
+                return [z[1], x, i];
             })
             .filter(x => x)
             .toArray()
     ).sort(([a],[b]) => a === b ? 0 : semver.gt(a,b) ? -1 : 1);
 
-    const loglatest = changelogs[0];
+    const logLatest = changeLogs[0];
 
-    logger.info(`Found ${changelogs.length} versions, newest is: ${loglatest[0]} in line ${loglatest[2]} `);
+    logger.info(`Found ${changeLogs.length} versions, newest is: ${logLatest[0]} in line ${logLatest[2]} `);
 
     const gitData = await (runStream('git log --no-merges --format="%h %d %s"')
         .lines(/\r?\n/)
@@ -43,21 +43,21 @@ const {logger, streamFile, packageFile, runStream} = require('../lib');
                 return {line, sha, version, message};
             }
         )
-        .while(({version}) => !version || semver.gt(version, loglatest[0]))
+        .while(({version}) => !version || semver.gt(version, logLatest[0]))
         .toStringStream(async ({sha, version, message}) => {
             if (version) {
                 return `+\n+## ${niceName} ${version}${message !== version ? ' - ' + message : ''}\n+\n`;
             } else {
-                return `+ * ${sha} - ${message}\n`;
+                return `+* ${sha} - ${message}\n`;
             }
         }, new StringStream)
         .toArray());
 
     gitData.push('+\n');
-    gitData.push(' ' + loglatest[1] + '\n');
+    gitData.push(' ' + logLatest[1] + '\n');
 
     const newlines = gitData.join('').split("\n").length;
-    gitData.unshift(`--- a/CHANGELOG.md\n+++ b/CHANGELOG.md\n@@ -${loglatest[2]},1 +${loglatest[2]},${newlines - 1} @@\n`);
+    gitData.unshift(`--- a/CHANGELOG.md\n+++ b/CHANGELOG.md\n@@ -${logLatest[2]},1 +${logLatest[2]},${newlines - 1} @@\n`);
 
     await (
         runStream('patch -t CHANGELOG.md', {}, StringStream.fromArray(gitData).stringify(x => x))
@@ -66,4 +66,6 @@ const {logger, streamFile, packageFile, runStream} = require('../lib');
 
     logger.info(`Changelog patched!`);
 
-})();
+});
+
+runRoot(module.exports);

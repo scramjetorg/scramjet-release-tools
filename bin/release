@@ -1,13 +1,8 @@
 #!/usr/bin/env node
 
-const {
-    _: [version],
-    m: message
-} = require('minimist')(process.argv.slice(2));
+const {logger, run, failIf, runRoot} = require('../lib');
 
-const {logger, run, failIf} = require('../lib');
-
-(async () => {
+module.exports = (async ({ _: [version], m: message }) => {
     if (!version || !message) {
         logger.error("Usage: scramjet-tool-release <version> -m '<message>'");
         process.exit(1);
@@ -27,6 +22,13 @@ const {logger, run, failIf} = require('../lib');
 
     logger.info(" ... Current working copy clean and correct.");
 
+    logger.info("Fetching latest changes in fast-forward mode only");
+    await run('git checkout master');
+    await run('git pull --ff-only');
+    await run('git checkout -');
+    await run('git pull --ff-only');
+
+    logger.info("Checking branch correctness");
     const {stdout: branchData} = await run('git branch -v');
     const currentBranch = branchData.split('\n').find(b => b.startsWith('*'));
 
@@ -43,14 +45,16 @@ const {logger, run, failIf} = require('../lib');
         await run('git merge --no-ff -');
 
         logger.info("Merged to master... attempting to build version");
-        await run('npm version ' + version + ' -m "'+message.replace('"', '"\'"\'"')+'"');
+        const {stdout: out} = await run('npm version ' + version + ' -m "'+message.replace('"', '"\'"\'"')+'"');
 
-        logger.info("Version released, merging back to dev");
+        logger.info(`Version ${out.match(/v[\d.]+/)} released, merging back to dev`);
 
     } catch(e) {
-        logger.error("Error occured, rolling back to origin/master");
+        logger.error("Error occurred, rolling back to origin/master");
         await run('git reset --hard origin/master');
         await run('git checkout -');
+
+        throw e;
     }
 
     await run('git checkout -');
@@ -62,6 +66,6 @@ const {logger, run, failIf} = require('../lib');
 
     logger.info("Done!");
 
-})().catch(
-    (err) => logger.error(err) && process.exit(100)
-);
+});
+
+runRoot(module.exports, require('minimist')(process.argv.slice(2)));
