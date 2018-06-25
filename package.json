@@ -1,6 +1,6 @@
 {
   "name": "scramjet-release-tools",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Set of tools used to release scramjet and releated projects.",
   "main": "lib.js",
   "bin": {
