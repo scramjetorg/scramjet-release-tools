@@ -45,7 +45,12 @@ module.exports = (async ({ _: [version], m: message }) => {
         await run('git merge --no-ff -');
 
         logger.info("Merged to master... attempting to build version");
-        const {stdout: out} = await run('npm version ' + version + ' -m "'+message.replace('"', '"\'"\'"')+'"');
+        const {stdout: out} = await run(
+            'npm version ' + version + ' -m "'+message.replace('"', '"\'"\'"')+'"',
+            {
+                maxBuffer: 10485760 // 10m max buffer
+            }
+        );
 
         logger.info(`Version ${out.match(/v[\d.]+/)} released, merging back to dev`);
 
