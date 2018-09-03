@@ -8,7 +8,7 @@ const save = {
     dependencies: 's'
 };
 
-module.exports = (async ({ n: noPush }) => {
+module.exports = (async ({ n: noPush, x: noTest }) => {
     logger.info("Pulling latest changes from repo");
 
     await run('git pull --ff-only');
@@ -42,11 +42,14 @@ module.exports = (async ({ n: noPush }) => {
                         e.message = `Could not install '${package}': ${e.message}`;
                         throw e;
                     }
-                    try {
-                        await run('npm test');
-                    } catch (e) {
-                        e.message = `Test failed on updated '${package}': ${e.message}`;
-                        throw e;
+
+                    if (!noTest) {
+                        try {
+                            await run('npm test');
+                        } catch (e) {
+                            e.message = `Test failed on updated '${package}': ${e.message}`;
+                            throw e;
+                        }
                     }
 
                     return package;

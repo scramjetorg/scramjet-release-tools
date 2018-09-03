@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/signicode/scramjet-release-tools#readme",
   "devDependencies": {
-    "eslint": "^5.4.0",
+    "eslint": "^5.5.0",
     "eslint-config-defaults": "^9.0.0",
     "eslint-plugin-node": "^7.0.1"
   },
