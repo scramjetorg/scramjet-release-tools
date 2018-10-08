@@ -1,18 +1,25 @@
 #!/usr/bin/env node
 
 const {logger, run, failIf, runRoot} = require('../lib');
+const {inc, valid} = require("semver");
 
-module.exports = (async ({ _: [version], m: message }) => {
-    if (!version || !message) {
+module.exports = (async ({ _: [release], d: dryrun, m: message }) => {
+    if (!release || !message) {
         logger.error("Usage: scramjet-tool-release <version> -m '<message>'");
         process.exit(1);
     }
 
+    const package = JSON.parse((await run('cat package.json')).stdout);
+    const version = valid(release) ? release : inc(package.version, release);
+
+    failIf(!version, "Version must be minor|major|patch or semver.");
+    failIf(dryrun, `Would run: $ npm version ${version} -m "${version}: ${message.replace('"', '"\'"\'"')}"`,);
+
+    logger.info("Pushing latest changes...");
+
+    await run('git push');
+
     logger.info("Checking local git repo status.");
-
-    failIf(!version.match(/^(minor|major|patch|\d\.\d\.\d)$/), "Version must be minor|major|patch or semver.");
-
-    // const package = JSON.parse((await run('cat package.json')).stdout);
 
     await run('git status');
     await run('npm version');
@@ -46,7 +53,7 @@ module.exports = (async ({ _: [version], m: message }) => {
 
         logger.info("Merged to master... attempting to build version");
         const {stdout: out} = await run(
-            'npm version ' + version + ' -m "'+message.replace('"', '"\'"\'"')+'"',
+            `npm version ${version} -m "${version}: ${message.replace('"', '"\'"\'"')}"`,
             {
                 maxBuffer: 10485760 // 10m max buffer
             }

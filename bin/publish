@@ -9,7 +9,7 @@ const buildStatus = async (release, org, repo) => {
     return status;
 };
 
-module.exports = (async ({ i: ignoreCI }) => {
+module.exports = (async ({ i: ignoreCI, t: tag = 'latest', d: dryRun }) => {
     logger.info("Finding repo origin.");
 
     const { name, repository } = await packageFile();
@@ -24,7 +24,7 @@ module.exports = (async ({ i: ignoreCI }) => {
 
     const [tags, {stdout: npmOut}] = await Promise.all([
         getJSON(`https://api.github.com/repos/${org}/${repo}/tags`),
-        run(`npm show ${name} dist-tags.latest`)
+        run(`npm show ${name} dist-tags.${tag}`)
     ]);
     const release = tags[0];
     const npmLatest = npmOut.trim();
@@ -53,7 +53,12 @@ module.exports = (async ({ i: ignoreCI }) => {
         throw new Error(`Newest version of ${name} already released.`);
 
     logger.info(`Publishing package ${name}@${releaseVersion}`);
-    await run(`npm publish https://github.com/${org}/${repo}/archive/v${releaseVersion}.tar.gz`);
+
+    const npmcommand = `npm publish https://github.com/${org}/${repo}/archive/v${releaseVersion}.tar.gz`;
+    if (dryRun)
+        logger.log(npmcommand);
+    else
+        await run(npmcommand);
 
     logger.info("Done.");
 
