@@ -3,11 +3,13 @@
 const semver = require('semver');
 const {StringStream} = require('scramjet');
 const {logger, streamFile, packageFile, runStream, runRoot} = require('../lib');
+const {inc, valid} = require("semver");
 
-module.exports = (async () => {
+module.exports = (async ({v: release, m: msg}) => {
     logger.info("Reading package and current changelog");
 
     const pkg = (await packageFile());
+    const newVersion = valid(release) ? release : inc(pkg.version, release);
     const niceName = pkg.niceName || pkg.name.replace(/(^|-)(\w)/g, (d, s, x) => (s ? ' ' : '') + x.toUpperCase());
 
     let i = 0;
@@ -45,12 +47,18 @@ module.exports = (async () => {
         )
         .while(({version}) => !version || semver.gt(version, logLatest[0]))
         .toStringStream(async ({sha, version, message}) => {
-            if (version) {
+            if (message.indexOf(version) === 0) {
+                return `+\n+## ${niceName} ${message}\n+\n`;
+            } else if (version) {
                 return `+\n+## ${niceName} ${version}${message !== version ? ' - ' + message : ''}\n+\n`;
             } else {
                 return `+* ${sha} - ${message}\n`;
             }
         }, new StringStream)
+        .use(stream => newVersion && msg
+            ? stream.unshift(`+\n+## ${niceName} ${newVersion} - ${msg}\n+\n`)
+            : stream
+        )
         .toArray());
 
     gitData.push('+\n');
@@ -68,4 +76,9 @@ module.exports = (async () => {
 
 });
 
-runRoot(module.exports);
+runRoot(module.exports, {help: {
+    usage: "$0 [-m releaseMessage] [-v releaseName]",
+    options: [
+        ["m", "release message"]
+    ]
+}});
