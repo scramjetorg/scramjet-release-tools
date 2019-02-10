@@ -22,17 +22,17 @@ module.exports = (async ({v: release, m: msg}) => {
             ]))
             .filter(([x]) => x.match(/^#/))
             .map(([x, i]) => {
-                const z = x.match(/(\d+\.\d+(?:\.\d+)?)( - .*)?$/);
+                const z = x.match(/(\d+\.\d+(?:\.\d+)?)(?:\s-\s(\d+\.\d+(?:\.\d+)?))?(:.*)?$/);
                 if (!z) return false;
-                return [z[1], x, i];
+                return [z[1], z[2], x, i];
             })
             .filter(x => x)
             .toArray()
-    ).sort(([a],[b]) => a === b ? 0 : semver.gt(a,b) ? -1 : 1);
+    ).sort(([a1, a2],[b1, b2]) => !a2 || !b2 || a2 === b2 ? (a1 === b1 ? 0 : semver.gt(a1,b1) ? -1 : 1) : semver.gt(a2,b2) ? -1 : 1);
 
     const logLatest = changeLogs[0];
 
-    logger.info(`Found ${changeLogs.length} versions, newest is: ${logLatest[0]} in line ${logLatest[2]} `);
+    logger.info(`Found ${changeLogs.length} versions, newest is: ${logLatest[1] || logLatest[0]} in line ${logLatest[3]} `);
 
     const gitData = await (runStream('git log --no-merges --format="%h %d %s"')
         .lines(/\r?\n/)
@@ -45,7 +45,7 @@ module.exports = (async ({v: release, m: msg}) => {
                 return {line, sha, version, message};
             }
         )
-        .while(({version}) => !version || semver.gt(version, logLatest[0]))
+        .while(({version}) => !version || semver.gt(version, logLatest[1] || logLatest[0]))
         .toStringStream(async ({sha, version, message}) => {
             if (message.indexOf(version) === 0) {
                 return `+\n+## ${niceName} ${message}\n+\n`;
@@ -62,10 +62,10 @@ module.exports = (async ({v: release, m: msg}) => {
         .toArray());
 
     gitData.push('+\n');
-    gitData.push(' ' + logLatest[1] + '\n');
+    gitData.push(' ' + logLatest[2] + '\n');
 
     const newlines = gitData.join('').split("\n").length;
-    gitData.unshift(`--- a/CHANGELOG.md\n+++ b/CHANGELOG.md\n@@ -${logLatest[2]},1 +${logLatest[2]},${newlines - 1} @@\n`);
+    gitData.unshift(`--- a/CHANGELOG.md\n+++ b/CHANGELOG.md\n@@ -${logLatest[3]},1 +${logLatest[3]},${newlines - 1} @@\n`);
 
     await (
         runStream('patch -t CHANGELOG.md', {}, StringStream.fromArray(gitData).stringify(x => x))
