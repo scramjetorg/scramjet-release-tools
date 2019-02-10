@@ -26,16 +26,16 @@
   },
   "homepage": "https://github.com/signicode/scramjet-release-tools#readme",
   "devDependencies": {
-    "eslint": "^5.8.0",
+    "eslint": "^5.13.0",
     "eslint-config-defaults": "^9.0.0",
-    "eslint-plugin-node": "^8.0.0"
+    "eslint-plugin-node": "^8.0.1"
   },
   "dependencies": {
     "execspawn": "^1.0.1",
     "loglevel": "^1.6.1",
     "minimist": "^1.2.0",
-    "node-fetch": "^2.2.1",
-    "scramjet": "^4.18.15",
+    "node-fetch": "^2.3.0",
+    "scramjet": "^4.22.0",
     "semver": "^5.6.0"
   }
 }
