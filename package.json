@@ -28,14 +28,14 @@
   "devDependencies": {
     "eslint": "^5.16.0",
     "eslint-config-defaults": "^9.0.0",
-    "eslint-plugin-node": "^8.0.1"
+    "eslint-plugin-node": "^9.0.0"
   },
   "dependencies": {
     "execspawn": "^1.0.1",
     "loglevel": "^1.6.1",
     "minimist": "^1.2.0",
-    "node-fetch": "^2.4.1",
-    "scramjet": "^4.23.1",
+    "node-fetch": "^2.5.0",
+    "scramjet": "^4.23.2",
     "semver": "^6.0.0"
   }
 }
