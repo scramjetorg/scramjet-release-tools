@@ -34,8 +34,8 @@
     "execspawn": "^1.0.1",
     "loglevel": "^1.6.1",
     "minimist": "^1.2.0",
-    "node-fetch": "^2.5.0",
-    "scramjet": "^4.24.1",
+    "node-fetch": "^2.6.0",
+    "scramjet": "^4.24.2",
     "semver": "^6.0.0"
   }
 }
