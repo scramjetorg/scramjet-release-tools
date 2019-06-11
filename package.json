@@ -32,10 +32,10 @@
   },
   "dependencies": {
     "execspawn": "^1.0.1",
-    "loglevel": "^1.6.2",
+    "loglevel": "^1.6.3",
     "minimist": "^1.2.0",
     "node-fetch": "^2.6.0",
-    "scramjet": "^4.25.0",
+    "scramjet": "^4.25.1",
     "semver": "^6.1.1"
   }
 }
