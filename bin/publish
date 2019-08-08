@@ -4,7 +4,7 @@ const { logger, run, getJSON, getText, failIf, packageFile, defer, runRoot } = r
 const semver = require('semver');
 
 const buildStatus = async (release, org, repo) => {
-    const badgeSVG = await getText(`https://api.travis-ci.org/${org}/${repo}.svg?branch=${release.name}`);
+    const badgeSVG = await getText(`https://api.travis-ci.org/${org}/${repo}.svg?branch=${release.name}`) || ['null'];;
     const [status] = badgeSVG.match(/passing|unknown|pending|failing/);
     return status;
 };
