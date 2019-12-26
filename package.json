@@ -7,7 +7,8 @@
     "scramjet-tool-release": "bin/release",
     "scramjet-tool-update": "bin/update",
     "scramjet-tool-changelog": "bin/changelog",
-    "scramjet-tool-publish": "bin/publish"
+    "scramjet-tool-publish": "bin/publish",
+    "scramjet-tool-push-docs": "bin/push-docs"
   },
   "engines": {
     "node": ">=8"
