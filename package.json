@@ -7,7 +7,8 @@
     "scramjet-tool-release": "bin/release",
     "scramjet-tool-update": "bin/update",
     "scramjet-tool-changelog": "bin/changelog",
-    "scramjet-tool-publish": "bin/publish"
+    "scramjet-tool-publish": "bin/publish",
+    "scramjet-tool-push-docs": "bin/push-docs"
   },
   "engines": {
     "node": ">=8"
@@ -26,16 +27,16 @@
   },
   "homepage": "https://github.com/signicode/scramjet-release-tools#readme",
   "devDependencies": {
-    "eslint": "^6.7.2",
+    "eslint": "^6.8.0",
     "eslint-config-defaults": "^9.0.0",
-    "eslint-plugin-node": "^10.0.0"
+    "eslint-plugin-node": "^11.0.0"
   },
   "dependencies": {
     "execspawn": "^1.0.1",
     "loglevel": "^1.6.6",
     "minimist": "^1.2.0",
     "node-fetch": "^2.6.0",
-    "scramjet": "^4.27.5",
-    "semver": "^7.1.0"
+    "scramjet": "^4.27.6",
+    "semver": "^7.1.1"
   }
 }
