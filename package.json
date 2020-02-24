@@ -36,7 +36,7 @@
     "loglevel": "^1.6.7",
     "minimist": "^1.2.0",
     "node-fetch": "^2.6.0",
-    "scramjet": "^4.27.7",
+    "scramjet": "^4.28.1",
     "semver": "^7.1.3"
   }
 }
