@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const { logger, run, scmClean, runRoot } = require('../lib');
+const path = require("path");
 const semver = require('semver');
 const { DataStream } = require("scramjet");
 const save = {
@@ -23,6 +24,7 @@ module.exports = (async ({ n: noPush, x: noTest }) => {
         throw new Error("No outdated packages.");
     }
     const packages = JSON.parse(packageOutput);
+    const packageJson = require(path.resolve(process.cwd(), 'package.json'));
 
     if (!Object.keys(packages).length)
         throw new Error("Up to date");
@@ -34,12 +36,17 @@ module.exports = (async ({ n: noPush, x: noTest }) => {
                 ([, {type, current, wanted, latest}]) => !(type in save) || current !== wanted || semver.lt(current, latest)
             )
             .map(
-                async ([package, {type}]) => {
-                    logger.info(`Trying to update and test ${type.replace(/ies$/, 'y')}: ${package}`);
+                async ([pkg, {type}]) => {
+                    if (packageJson[type][pkg].match(/^[^^]/)) {
+                        logger.warn(`Package "${pkg}" is pinned`);
+                        return DataStream.filter;
+                    }
+
+                    logger.info(`Trying to update and test ${type.replace(/ies$/, 'y')}: ${pkg}`);
                     try {
-                        await run(`npm install -${save[type]} ${package}@latest`);
+                        await run(`npm install -${save[type]} ${pkg}@latest`);
                     } catch(e) {
-                        e.message = `Could not install '${package}': ${e.message}`;
+                        e.message = `Could not install '${pkg}': ${e.message}`;
                         throw e;
                     }
 
@@ -47,12 +54,12 @@ module.exports = (async ({ n: noPush, x: noTest }) => {
                         try {
                             await run('npm test');
                         } catch (e) {
-                            e.message = `Test failed on updated '${package}': ${e.message}`;
+                            e.message = `Test failed on updated '${pkg}': ${e.message}`;
                             throw e;
                         }
                     }
 
-                    return package;
+                    return pkg;
                 }
             )
             .toArray()
