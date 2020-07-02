@@ -2,6 +2,10 @@
 
 const { logger, run, getJSON, getText, failIf, packageFile, defer, runRoot } = require('../lib');
 const semver = require('semver');
+const os = require("os");
+const path = require('path');
+const { promisify } = require('util');
+const { access } = require('fs');
 
 const buildStatus = async (release, org, repo) => {
     const badgeSVG = (await getText(`https://api.travis-ci.org/${org}/${repo}.svg?branch=${release.name}`)) || ['null'];
@@ -52,15 +56,32 @@ module.exports = (async ({ i: ignoreCI, t: tag = 'latest', d: dryRun }) => {
     if (!semver.gt(releaseVersion, npmLatest))
         throw new Error(`Newest version of ${name} already released.`);
 
-    logger.info(`Publishing package ${name}@${releaseVersion}`);
+    const tmp = path.join(os.tmpdir(), `srt-${process.pid}`);
+    await run(`mkdir "${tmp}"`);
 
-    const npmcommand = `npm publish https://github.com/${org}/${repo}/archive/v${releaseVersion}.tar.gz`;
-    if (dryRun)
-        logger.log(npmcommand);
-    else
-        await run(npmcommand);
+    try {
+        logger.info(`Fetching tarball for ${name}@${releaseVersion}`);
+        process.chdir(tmp);
 
-    logger.info("Done.");
+        await run(`curl -Ls "https://github.com/${org}/${repo}/archive/v${releaseVersion}.tar.gz" | tar zx`);
+        await promisify(access)(`${name}-${releaseVersion}`);
+
+        process.chdir(`${name}-${releaseVersion}`);
+
+        logger.info(`Publishing package ${name}@${releaseVersion}`);
+
+        const npmcommand = `npm publish`;
+        if (dryRun)
+            logger.log(npmcommand);
+        else {
+            await run(npmcommand);
+        }
+
+        logger.info("Done.");
+    } finally {
+        await run(`rm -rf "${tmp}"`);
+    }
+
 
 });
 
