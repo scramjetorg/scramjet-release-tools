@@ -38,7 +38,7 @@ module.exports = (async ({ i: ignoreCI, t: tag = "latest", d: dryRun }) => {
 
     let i = 0;
     while(!ignoreCI) {
-        if (++i > 10) {
+        if (++i > 60) {
             throw new Error("Build not ready after 5 minutes");
         }
         const status = await buildStatus(release, org, repo);
@@ -49,8 +49,8 @@ module.exports = (async ({ i: ignoreCI, t: tag = "latest", d: dryRun }) => {
             logger.info("Build passing");
             break;
         }
-        logger.warn(`Build is in ${status} state, waiting 30 secs...`);
-        await defer(30e3);
+        logger.warn(`Build is in ${status} state, waiting 5 secs...`);
+        await defer(5e3);
     }
 
     if (!semver.gt(releaseVersion, npmLatest))
