@@ -20,10 +20,11 @@ module.exports = (async ({ n: noPush, x: noTest }) => {
     logger.info("Finding dependencies");
 
     const { stdout: packageOutput, code: packageCode } = (await run("npm outdated --long --json", { allowError: 1 }));
-    if (packageCode === 0) {
+    const packages = packageOutput ? JSON.parse(packageOutput) : {};
+    if (packageCode === 0 && Object.keys(packageOutput).length === 0) {
         throw new Error("No outdated packages.");
     }
-    const packages = JSON.parse(packageOutput);
+
     const packageJson = require(path.resolve(process.cwd(), "package.json"));
 
     if (!Object.keys(packages).length)

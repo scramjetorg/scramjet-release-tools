@@ -49,7 +49,7 @@ module.exports = (async ({ i: ignoreCI, t: tag = "latest", d: dryRun }) => {
             logger.info("Build passing");
             break;
         }
-        logger.warn(`Build is in ${status} state, waiting 5 secs...`);
+        logger.warn(`${"\033[1A\033"}[KBuild is in ${status} state, waited ${i*5} secs...`);
         await defer(5e3);
     }
 
