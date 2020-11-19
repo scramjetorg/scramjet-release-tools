@@ -4,11 +4,11 @@
   "description": "Set of tools used to release scramjet and releated projects.",
   "main": "lib/index.js",
   "bin": {
-    "scramjet-tool-release": "bin/release",
-    "scramjet-tool-update": "bin/update",
-    "scramjet-tool-changelog": "bin/changelog",
-    "scramjet-tool-publish": "bin/publish",
-    "scramjet-tool-push-docs": "bin/push-docs"
+    "scramjet-tool-release": "bin/release.js",
+    "scramjet-tool-update": "bin/update.js",
+    "scramjet-tool-changelog": "bin/changelog.js",
+    "scramjet-tool-publish": "bin/publish.js",
+    "scramjet-tool-push-docs": "bin/push-docs.js"
   },
   "engines": {
     "node": ">=8"
@@ -27,8 +27,10 @@
   },
   "homepage": "https://github.com/signicode/scramjet-release-tools#readme",
   "devDependencies": {
+    "@types/node": "^14.14.8",
     "eslint": "^7.10.0",
     "eslint-config-defaults": "^9.0.0",
+    "eslint-config-scramjet": "^3.0.0",
     "eslint-plugin-node": "^11.1.0"
   },
   "dependencies": {
