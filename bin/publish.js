@@ -1,28 +1,28 @@
 #!/usr/bin/env node
 
-const { logger, run, getJSON, getText, failIf, packageFile, defer, runRoot } = require('../lib');
-const semver = require('semver');
+const { logger, run, getJSON, getText, failIf, packageFile, defer, runRoot } = require("../lib");
+const semver = require("semver");
 const os = require("os");
-const path = require('path');
-const { promisify } = require('util');
-const { access } = require('fs');
+const path = require("path");
+const { promisify } = require("util");
+const { access } = require("fs");
 
 const buildStatus = async (release, org, repo) => {
-    const badgeSVG = (await getText(`https://api.travis-ci.org/${org}/${repo}.svg?branch=${release.name}`)) || ['null'];
+    const badgeSVG = (await getText(`https://api.travis-ci.com/${org}/${repo}.svg?branch=${release.name}`)) || ["null"];
     const [status] = badgeSVG.match(/passing|unknown|pending|failing/);
     return status;
 };
 
-module.exports = (async ({ i: ignoreCI, t: tag = 'latest', d: dryRun }) => {
+module.exports = (async ({ i: ignoreCI, t: tag = "latest", d: dryRun }) => {
     logger.info("Finding repo origin.");
 
     const { name, repository } = await packageFile();
 
-    failIf(repository.type !== 'git' || repository.url.indexOf('github.com') === -1, "Must be hosted in github to work.");
+    failIf(repository.type !== "git" || repository.url.indexOf("github.com") === -1, "Must be hosted in github to work.");
     const parts = repository.url.split(/[:/]|\.git/g);
     const [org, repo] = parts.slice(parts.length - 3);
 
-    failIf(!org || !repo || (''+org+repo).match(/[^\w-_]/), "Cannot identify repo...");
+    failIf(!org || !repo || (""+org+repo).match(/[^\w-_]/), "Cannot identify repo...");
 
     logger.info(`Found repo "${org}/${repo}"`);
 
@@ -39,13 +39,13 @@ module.exports = (async ({ i: ignoreCI, t: tag = 'latest', d: dryRun }) => {
     let i = 0;
     while(!ignoreCI) {
         if (++i > 10) {
-            throw new Error('Build not ready after 5 minutes');
+            throw new Error("Build not ready after 5 minutes");
         }
         const status = await buildStatus(release, org, repo);
-        if (status === 'failing') {
-            throw new Error('Build failed, cannot proceed...');
+        if (status === "failing") {
+            throw new Error("Build failed, cannot proceed...");
         }
-        if (status === 'passing') {
+        if (status === "passing") {
             logger.info("Build passing");
             break;
         }
@@ -70,7 +70,7 @@ module.exports = (async ({ i: ignoreCI, t: tag = 'latest', d: dryRun }) => {
 
         logger.info(`Publishing package ${name}@${releaseVersion}`);
 
-        const npmcommand = `npm publish`;
+        const npmcommand = "npm publish";
         if (dryRun)
             logger.log(npmcommand);
         else {
@@ -85,4 +85,4 @@ module.exports = (async ({ i: ignoreCI, t: tag = 'latest', d: dryRun }) => {
 
 });
 
-runRoot(module.exports, require('minimist')(process.argv.slice(2)));
+runRoot(module.exports, require("minimist")(process.argv.slice(2)));
