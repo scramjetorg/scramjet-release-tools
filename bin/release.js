@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const {logger, run, failIf, runRoot} = require("../lib");
+const {logger, run, failIf, runRoot, mainBranch} = require("../lib");
 const {inc, valid} = require("semver");
 
 module.exports = (async ({ _: [release], d: dryrun, m: message }) => {
@@ -11,6 +11,7 @@ module.exports = (async ({ _: [release], d: dryrun, m: message }) => {
 
     const package = JSON.parse((await run("cat package.json")).stdout);
     const version = valid(release) ? release : inc(package.version, release);
+    const main = await mainBranch();
 
     failIf(!version, "Version must be minor|major|patch or semver.");
     failIf(dryrun, `Would run: $ npm version ${version} -m "${version}: ${message.replace("\"", "\"'\"'\"")}"`,);
@@ -30,7 +31,7 @@ module.exports = (async ({ _: [release], d: dryrun, m: message }) => {
     logger.info(" ... Current working copy clean and correct.");
 
     logger.info("Fetching latest changes in fast-forward mode only");
-    await run("git checkout master");
+    await run(`git checkout ${main}`);
     await run("git pull --ff-only");
     await run("git checkout -");
     await run("git pull --ff-only");
@@ -44,14 +45,14 @@ module.exports = (async ({ _: [release], d: dryrun, m: message }) => {
 
     logger.info(" ... Branch correct.");
 
-    logger.info("Checks done, merging to master...");
+    logger.info("Checks done, merging to main branch...");
 
-    await run("git checkout master");
+    await run(`git checkout ${main}`);
 
     try {
         await run("git merge --no-ff -");
 
-        logger.info("Merged to master... attempting to build version");
+        logger.info("Merged to main... attempting to build version");
         const {stdout: out} = await run(
             `npm version ${version} -m "${version}: ${message.replace("\"", "\"'\"'\"")}"`,
             {
@@ -62,15 +63,15 @@ module.exports = (async ({ _: [release], d: dryrun, m: message }) => {
         logger.info(`Version ${out.match(/v[\d.]+/)} released, merging back to dev`);
 
     } catch(e) {
-        logger.error("Error occurred, rolling back to origin/master");
-        await run("git reset --hard origin/master");
+        logger.error("Error occurred, rolling back to main");
+        await run(`git reset --hard ${main}`);
         await run("git checkout -");
 
         throw e;
     }
 
     await run("git checkout -");
-    await run("git merge --no-ff master");
+    await run(`git merge --no-ff ${main}`);
 
     logger.info("Pushing to upstream...");
 

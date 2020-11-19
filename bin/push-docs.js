@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { logger, run, scmClean, runRoot, failIf } = require("../lib");
+const { logger, run, scmClean, runRoot, failIf, mainBranch } = require("../lib");
 
 module.exports = (async ({ n: noPush, x: noTest }) => {
 
@@ -9,6 +9,7 @@ module.exports = (async ({ n: noPush, x: noTest }) => {
     noPush || await run("git pull --ff-only");
 
     const wasClean = await scmClean();
+    const main = await mainBranch();
 
     logger.info("Checking branch correctness");
     const {stdout: branchData} = await run("git branch -v");
@@ -36,14 +37,14 @@ module.exports = (async ({ n: noPush, x: noTest }) => {
 
     logger.warn("Committing changes and pushing...");
 
-    await run("git merge master");
+    await run(`git merge ${main}`);
     if (await scmClean()) {
         logger.warn("Changes made but working copy not affected.");
     } else {
         await run("git commit -am \"Documentation update.\"");
     }
 
-    await run("git checkout master");
+    await run(`git checkout ${main}`);
     await run("git merge -");
     await run("git push");
     await run("git checkout -");
