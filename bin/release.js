@@ -53,14 +53,14 @@ module.exports = (async ({ _: [release], d: dryrun, m: message }) => {
         await run("git merge --no-ff -");
 
         logger.info("Merged to main... attempting to build version");
-        const {stdout: out} = await run(
+        await run(
             `npm version ${version} -m "${version}: ${message.replace("\"", "\"'\"'\"")}"`,
             {
                 maxBuffer: 10485760 // 10m max buffer
             }
         );
 
-        logger.info(`Version ${out.match(/v[\d.]+/)} released, merging back to dev`);
+        logger.info(`Version ${version} released, merging back to dev`);
 
     } catch(e) {
         logger.error("Error occurred, rolling back to main");
@@ -75,6 +75,7 @@ module.exports = (async ({ _: [release], d: dryrun, m: message }) => {
 
     logger.info("Pushing to upstream...");
 
+    await run(`git push origin refs/tags/v${version}`);
     await run("git push --all --follow-tags");
 
     logger.info("Done!");
