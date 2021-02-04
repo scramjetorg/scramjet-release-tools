@@ -18,14 +18,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/signicode/scramjet-release-tools.git"
+    "url": "git+ssh://git@github.com/scramjetorg/scramjet-release-tools.git"
   },
   "author": "Signicode <open-source@signicode.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/signicode/scramjet-release-tools/issues"
+    "url": "https://github.com/scramjetorg/scramjet-release-tools/issues"
   },
-  "homepage": "https://github.com/signicode/scramjet-release-tools#readme",
+  "homepage": "https://github.com/scramjetorg/scramjet-release-tools#readme",
   "devDependencies": {
     "@types/node": "^14.14.22",
     "eslint": "^7.19.0",
