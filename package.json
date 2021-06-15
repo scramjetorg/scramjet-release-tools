@@ -27,8 +27,8 @@
   },
   "homepage": "https://github.com/scramjetorg/scramjet-release-tools#readme",
   "devDependencies": {
-    "@types/node": "^15.3.0",
-    "eslint": "^7.26.0",
+    "@types/node": "^15.12.2",
+    "eslint": "^7.28.0",
     "eslint-config-defaults": "^9.0.0",
     "eslint-config-scramjet": "^3.0.0",
     "eslint-plugin-node": "^11.1.0"
