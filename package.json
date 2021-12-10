@@ -27,18 +27,18 @@
   },
   "homepage": "https://github.com/scramjetorg/scramjet-release-tools#readme",
   "devDependencies": {
-    "@types/node": "^15.12.2",
-    "eslint": "^7.28.0",
+    "@types/node": "^16.11.12",
+    "eslint": "^8.4.1",
     "eslint-config-defaults": "^9.0.0",
     "eslint-config-scramjet": "^3.0.0",
     "eslint-plugin-node": "^11.1.0"
   },
   "dependencies": {
     "execspawn": "^1.0.1",
-    "loglevel": "^1.7.1",
+    "loglevel": "^1.8.0",
     "minimist": "^1.2.5",
-    "node-fetch": "^2.6.1",
-    "scramjet": "^4.35.17",
+    "node-fetch": "^3.1.0",
+    "scramjet": "^4.36.1",
     "semver": "^7.3.5"
   }
 }
