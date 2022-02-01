@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { logger, run, getJSON, getText, failIf, packageFile, defer, runRoot } = require("../lib");
+const { logger, run, getJSON, failIf, packageFile, defer, runRoot } = require("../lib");
 const semver = require("semver");
 const os = require("os");
 const path = require("path");
@@ -8,9 +8,9 @@ const { promisify } = require("util");
 const { access } = require("fs");
 
 const buildStatus = async (release, org, repo) => {
-    const badgeSVG = (await getText(`https://api.travis-ci.com/${org}/${repo}.svg?branch=${release.name}`)) || ["null"];
-    const [status] = badgeSVG.match(/passing|unknown|pending|failing/);
-    return status;
+    const response = await getJSON(`https://api.github.com/repos/${org}/${repo}/commits/${release.name}/status`, {Accept: "application/vnd.github.v3+json"});
+    
+    return response.state;
 };
 
 module.exports = (async ({ i: ignoreCI, t: tag = "latest", d: dryRun }) => {
@@ -42,10 +42,10 @@ module.exports = (async ({ i: ignoreCI, t: tag = "latest", d: dryRun }) => {
             throw new Error("Build not ready after 5 minutes");
         }
         const status = await buildStatus(release, org, repo);
-        if (status === "failing") {
+        if (status === "error" || status === "failure") {
             throw new Error("Build failed, cannot proceed...");
         }
-        if (status === "passing") {
+        if (status === "success") {
             logger.info("Build passing");
             break;
         }
