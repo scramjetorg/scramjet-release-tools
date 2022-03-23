@@ -36,7 +36,7 @@
   "dependencies": {
     "execspawn": "^1.0.1",
     "loglevel": "^1.8.0",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "node-fetch": "<3",
     "scramjet": "^4.36.1",
     "semver": "^7.3.5"
