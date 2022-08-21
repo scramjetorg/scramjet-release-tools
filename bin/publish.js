@@ -9,7 +9,7 @@ const { access } = require("fs");
 
 const buildStatus = async (release, org, repo) => {
     const response = await getJSON(`https://api.github.com/repos/${org}/${repo}/commits/${release.name}/status`, {Accept: "application/vnd.github.v3+json"});
-    
+
     return response.state;
 };
 
@@ -64,9 +64,9 @@ module.exports = (async ({ i: ignoreCI, t: tag = "latest", d: dryRun }) => {
         process.chdir(tmp);
 
         await run(`curl -Ls "https://github.com/${org}/${repo}/archive/v${releaseVersion}.tar.gz" | tar zx`);
-        await promisify(access)(`${name}-${releaseVersion}`);
+        await promisify(access)(`${repo}-${releaseVersion}`);
 
-        process.chdir(`${name}-${releaseVersion}`);
+        process.chdir(`${repo}-${releaseVersion}`);
 
         logger.info(`Publishing package ${name}@${releaseVersion}`);
 
