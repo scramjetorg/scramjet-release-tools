@@ -39,6 +39,6 @@
     "minimist": "^1.2.6",
     "node-fetch": "<3",
     "scramjet": "^4.36.8",
-    "semver": "^7.3.7"
+    "semver": "^7.5.2"
   }
 }
